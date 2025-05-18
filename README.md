@@ -5,6 +5,7 @@ This is a sample application developed using NextJS for Roman Numeral Conversion
 ### Steps to execute
 
 `docker build -t roman-converter .`
+
 `docker run -p 8080:3000 roman-converter`
 
 ## Learn More
