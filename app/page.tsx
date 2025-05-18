@@ -1,95 +1,87 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
+import { useState } from 'react';
+import { Provider, defaultTheme, Grid, View, Heading, TextField, Button, Divider, Text, Well, Content, Flex } from '@adobe/react-spectrum';
 
-export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+export default function RomanConverter() {
+    const [number, setNumber] = useState('');
+    const [result, setResult] = useState('');
+    const [error, setError] = useState('');
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+    const handleConvert = async () => {
+        setError('');
+        setResult('');
+        
+        try {
+            const response = await fetch(`/api/romannumeral?query=${number}`);
+            const data = await response.json();
+            
+            if (response.ok) {
+                setResult(data.output);
+            } else {
+                setError(data.error);
+            }
+        } catch (err) {
+            setError('Failed to connect to server');
+            console.error('API error:', err);
+        }
+    };
+
+    return (
+        <Provider theme={defaultTheme} colorScheme="light">
+            <Grid
+                areas={['header', 'content']}
+                columns={['1fr']}
+                rows={['size-400', 'auto']}
+                gap="size-100"
+                width="size-4600"
+                margin="size-400"
+            >
+                <View gridArea="header">
+                    <Heading level={1} marginBottom="size-200">
+                        Roman Numeral Converter
+                    </Heading>
+                </View>
+                
+                <Flex  direction="column" width="size-3000" gap="size-100">
+                    <Content>
+                        <TextField
+                            label="Enter a number (1-3999)"
+                            type="number"
+                            value={number}
+                            onChange={setNumber}
+                            width="size-2400"
+                            marginBottom="size-200"
+                            isRequired
+                        />
+                        
+                        <Button
+                            variant="primary"
+                            onPress={handleConvert}
+                            marginBottom="size-200"
+                        >
+                            Convert to Roman
+                        </Button>
+                        
+                        <Divider size="M" marginY="size-100" />
+                        
+                        {result && (
+                            <Well>
+                                <Text>
+                                    <strong>Roman Numeral:</strong> {result}
+                                </Text>
+                            </Well>
+                        )}
+                        
+                        {error && (
+                            <Well>
+                                <Text>
+                                    <strong>Error:</strong> {error}
+                                </Text>
+                            </Well>
+                        )}
+                    </Content>
+                </Flex>
+            </Grid>
+        </Provider>
+    );
 }
